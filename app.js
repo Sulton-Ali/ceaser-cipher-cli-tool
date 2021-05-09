@@ -27,18 +27,22 @@ program
     process.stdin.setEncoding("utf8");
     process.stdout.setEncoding("utf8");
 
-    try {
-      fs.accessSync(input, fs.constants.F_OK | fs.constants.R_OK);
-    } catch (error) {
-      process.stderr.write(chalk.red(error));
-      process.exit(1);
+    if (input) {
+      try {
+        fs.accessSync(input, fs.constants.F_OK | fs.constants.R_OK);
+      } catch (error) {
+        process.stderr.write(chalk.red(error));
+        process.exit(1);
+      }
     }
 
-    try {
-      fs.accessSync(output, fs.constants.F_OK | fs.constants.W_OK);
-    } catch (error) {
-      process.stderr.write(chalk.red(error));
-      process.exit(1);
+    if (output) {
+      try {
+        fs.accessSync(output, fs.constants.F_OK | fs.constants.W_OK);
+      } catch (error) {
+        process.stderr.write(chalk.red(error));
+        process.exit(1);
+      }
     }
 
     const inputStream = input
