@@ -10,7 +10,6 @@ class CipherTransform extends Transform {
 
   encodeSymbol(item, shift) {
     const itemCode = item.charCodeAt(0);
-
     if (65 <= itemCode && 90 >= itemCode) {
       const currentShift = (((itemCode - 65) + (shift % 26)) % 26);
       const codePoint = currentShift >= 0 ? (65 + currentShift) : (65 + currentShift + 26);

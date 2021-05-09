@@ -1,5 +1,5 @@
+#!/usr/bin/env node
 const fs = require("fs");
-const os = require("os");
 const { pipeline } = require("stream");
 const { Command, Option } = require("commander");
 const chalk = require("chalk");
@@ -11,7 +11,7 @@ const program = new Command();
 program.version("1.0.0").description("Ceaser cipher CLI tool");
 
 program
-  .command("my_ceaser_cli")
+  // .command("ceaser-cli")
   .addOption(
     new Option(
       "-a, --action <action>",
@@ -27,31 +27,27 @@ program
     process.stdin.setEncoding("utf8");
     process.stdout.setEncoding("utf8");
 
-    let inputFileAccess = true;
     try {
-      fs.accessSync(
-        input,
-        fs.constants.R_OK
-      );
+      fs.accessSync(input, fs.constants.F_OK | fs.constants.R_OK);
     } catch (error) {
-      inputFileAccess = false;
+      process.stderr.write(chalk.red(error));
+      process.exit(1);
     }
 
-    let outputFileAccess = true;
     try {
-      fs.accessSync(
-        output,
-        fs.constants.W_OK
-      );
+      fs.accessSync(output, fs.constants.F_OK | fs.constants.W_OK);
     } catch (error) {
-      outputFileAccess = false;
+      process.stderr.write(chalk.red(error));
+      process.exit(1);
     }
 
-    const inputStream = input && inputFileAccess
+    const inputStream = input
       ? fs.createReadStream(input, "utf-8")
       : process.stdin;
-    const outputStream = output && outputFileAccess
-      ? fs.createWriteStream(output)
+    const outputStream = output
+      ? fs.createWriteStream(output, {
+          flags: "a",
+        })
       : process.stdout;
 
     if (!action || !shift) {
@@ -65,28 +61,19 @@ program
       process.exit(1);
     }
 
-    let cipherTransform = new CipherTransform(
-      action,
-      action === "encode" ? Number(shift) : -Number(shift)
-    );
+    if (shift.split("").includes(".")) {
+      process.stderr.write(chalk.red("The shift must be a integer number!"));
+      process.exit(1);
+    }
 
-    process.stdin.once('readable', () => {
-      var chunk = process.stdin.read();
-      if (chunk !== null) {
-        process.stdout.write(`data: ${chunk}`);
+    let cipherTransform = new CipherTransform(action, Number(shift));
+
+    pipeline(inputStream, cipherTransform, outputStream, (err) => {
+      if (err) {
+        console.log(chalk.red("Pipeline failed: "), err);
       }
+      console.log(chalk.green("Pipeline succeeded"));
     });
-
-    pipeline(
-      inputStream,
-      cipherTransform,
-      outputStream,
-      (err) => {
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
   });
 
 program.parse(process.argv);
