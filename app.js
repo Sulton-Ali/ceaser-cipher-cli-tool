@@ -3,8 +3,10 @@ const fs = require("fs");
 const { pipeline } = require("stream");
 const { Command, Option } = require("commander");
 const chalk = require("chalk");
-const { prompt } = require("inquirer");
 const CipherTransform = require("./cipher");
+const { createReadableStream, createWriteableStream } = require('./createStream');
+const requiredOptionsCheck = require('./requiredOptionsCheck');
+const { checkInputFileAccess, checkOutputFileAccess } = require('./checkAccess');
 
 const program = new Command();
 
@@ -27,48 +29,13 @@ program
     process.stdin.setEncoding("utf8");
     process.stdout.setEncoding("utf8");
 
-    if (input) {
-      try {
-        fs.accessSync(input, fs.constants.F_OK | fs.constants.R_OK);
-      } catch (error) {
-        process.stderr.write(chalk.red(error));
-        process.exit(1);
-      }
-    }
+    checkInputFileAccess(input);
+    checkOutputFileAccess(output);
+    
+    const inputStream = createReadableStream(input);
+    const outputStream = createWriteableStream(output);
 
-    if (output) {
-      try {
-        fs.accessSync(output, fs.constants.F_OK | fs.constants.W_OK);
-      } catch (error) {
-        process.stderr.write(chalk.red(error));
-        process.exit(1);
-      }
-    }
-
-    const inputStream = input
-      ? fs.createReadStream(input, "utf-8")
-      : process.stdin;
-    const outputStream = output
-      ? fs.createWriteStream(output, {
-          flags: "a",
-        })
-      : process.stdout;
-
-    if (!action || !shift) {
-      if (!action) process.stderr.write(chalk.red("Action is required!"));
-      if (!shift) process.stderr.write(chalk.red("Shift is required!"));
-      process.exit(1);
-    }
-
-    if (isNaN(shift)) {
-      process.stderr.write(chalk.red("The shift amount must be a number!"));
-      process.exit(1);
-    }
-
-    if (shift.split("").includes(".")) {
-      process.stderr.write(chalk.red("The shift must be a integer number!"));
-      process.exit(1);
-    }
+    requiredOptionsCheck(action, shift);
 
     let cipherTransform = new CipherTransform(action, Number(shift));
 

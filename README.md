@@ -7,7 +7,7 @@
 ### Install
 
 - Fork and/or clone repo your machine as:
-    > git clone how git@github.com:Sulton-Ali/ceaser-cipher-cli-tool.git
+    > git clone git@github.com:Sulton-Ali/ceaser-cipher-cli-tool.git
     
 - Go to root directory: 
     > cd ceaser-cipher-cli-tool
