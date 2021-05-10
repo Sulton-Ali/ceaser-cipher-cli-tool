@@ -18,6 +18,9 @@
 - Install dependencies:
     > npm install
 
+- Add global command ceaser-cli
+    > npm link
+                       
 and program ready to use
 
 ### Usage
