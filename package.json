@@ -3,6 +3,7 @@
   "description": "* Description: https://github.com/rolling-scopes-school/basic-nodejs-2021Q2/blob/master/descriptions/caesar-cipher-cli-tool.md * Cross-check criteria: https://github.com/rolling-scopes-school/basic-nodejs-2021Q2/blob/master/cross-check/caesar-cipher-cli-tool.md",
   "version": "1.0.0",
   "main": "app.js",
+  "preferGlobal": true,
   "bin": {
     "ceaser-cli": "./app.js"
   },
